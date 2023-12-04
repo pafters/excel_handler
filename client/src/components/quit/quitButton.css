@@ -1,0 +1,17 @@
+.quit-button-container {
+    position: fixed;
+    top: 2dvh;
+    right: 2dvw;
+}
+
+.quit-button {
+    font-size: 1.6dvw;
+    background-color: transparent;
+    border: none;
+    color: #555;
+    cursor: pointer;
+}
+
+.quit-button:hover {
+    color: #000;
+}

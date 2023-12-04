@@ -1,0 +1,65 @@
+.upload-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-file {
+    position: relative;
+    display: inline-block;
+    background-color: #008CBA;
+    border: none;
+    color: white;
+    padding: 1dvw;
+    text-align: center;
+    text-decoration: none;
+    font-size: 1.25dvw;
+    margin-right: 0.5dvw;
+    cursor: pointer;
+}
+
+.btn-file input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.btn-file:hover {
+    background-color: #006A8E;
+}
+
+.btn-standard,
+.btn-deep {
+    background-color: #a2b0a2;
+    border: none;
+    color: white;
+    padding: 1dvw;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1.25dvw;
+    margin-right: 0.5dvw;
+    cursor: pointer;
+}
+
+.btn-deep {
+    background-color: #FF5733;
+}
+
+.btn-standard:last-child,
+.btn-deep:last-child {
+    margin-right: 0;
+}
+
+.btn-standard:hover {
+    background-color: #7a8f7b;
+}
+
+.btn-deep:hover {
+    background-color: #8e593e;
+}

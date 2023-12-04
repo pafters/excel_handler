@@ -1,0 +1,169 @@
+.excel-container {
+    width: 90dvw;
+    overflow-y: scroll;
+    max-height: 80dvh;
+    margin-top: 5dvh;
+    margin-bottom: 5dvh;
+    border: solid 0.25dvw #4CAF50;
+    border-radius: 0.5dvw;
+    padding: 1dvw;
+}
+
+
+.excel-table {
+    width: 100%;
+}
+
+.excel-table th,
+.excel-table td {
+    border: 0.15dvw solid #ddd;
+    text-align: left;
+}
+
+.excel-table th {
+    background-color: #f2f2f2;
+}
+
+.excel-inp {
+    margin: 0.5dvw;
+    width: 90%;
+    height: 90%;
+}
+
+.excel-inp:focus {
+    outline-color: #4CAF50;
+}
+
+.main-table-name-bttn,
+.table-name-bttn {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 0.5dvw;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1.2dvw;
+    margin: 0.5dvw;
+    cursor: pointer;
+}
+
+.switch-main-table-bttn,
+.download-table-bttn,
+.add-to-main-table-bttn,
+.delete-table-bttn {
+    background-color: #d65555;
+    border: none;
+    border-radius: 0.15dvw;
+    color: white;
+    padding: 0.5dvw;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1dvw;
+    margin: 0.25dvw;
+    cursor: pointer;
+}
+
+.delete-table-bttn:hover {
+    background-color: #b54848;
+}
+
+.switch-main-table-bttn {
+    padding-top: 0.7dvw;
+    background-color: #d4bd4c;
+}
+
+.download-table-bttn {
+    padding-top: 0.65dvw;
+    background-color: #7cd655;
+}
+
+.download-table-bttn:hover {
+    background-color: #68b248;
+}
+
+.add-to-main-table-bttn,
+.main-table-name-bttn {
+    background-color: #de7d33;
+}
+
+.table-names-container {
+    width: 90dvw;
+}
+
+.table-name-bttn:hover {
+    background-color: #3e8e41;
+}
+
+.switch-main-table-bttn:hover {
+    background-color: #b8a443;
+}
+
+.add-to-main-table-bttn:hover,
+.main-table-name-bttn:hover {
+    background-color: #c56f2d;
+}
+
+
+/*Подтверждение удаления таблицы*/
+.delete-table-notice {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* затемнение */
+}
+
+.delete-table-container {
+    width: 40dvw;
+    min-height: 30dvh;
+    padding: 2dvh 2dvw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(255, 255, 255);
+}
+
+.delete-table-notice span {
+    font-size: 1.6dvw;
+    margin-bottom: 4dvh;
+    color: #333;
+    /* цвет текста */
+}
+
+.delete-table-buttons {
+    display: flex;
+}
+
+.delete-table-button {
+    background-color: #f44336;
+    color: #fff;
+    border: none;
+    padding: 0.75dvw;
+    font-size: 1.5dvw;
+    margin-right: 0.5dvw;
+    border-radius: 0.2dvw;
+    cursor: pointer;
+}
+
+.delete-table-button:hover {
+    background-color: #d32f2f;
+}
+
+.delete-table-button:last-of-type {
+    background-color: #ccc;
+    /* изменение стиля кнопки "Нет" */
+    color: #333;
+}
+
+.delete-table-button:last-of-type:hover {
+    background-color: #aaa;
+}
