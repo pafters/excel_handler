@@ -11,22 +11,25 @@ export default function MainPage({ router }) {
         const localToken = localStorage.getItem('excel_handler_token');
         if (localToken) {
             const fetchObj = async () => {
-                const tokenInfo = await router.sendGet(
-                    'users/token-life',
-                    '',
-                    {
-                        'AuthorizationToken': `${localToken}`
+                try {
+                    const tokenInfo = await router.sendGet(
+                        'users/token-life',
+                        '',
+                        {
+                            'AuthorizationToken': `${localToken}`
+                        }
+                    )
+                    console.log(tokenInfo);
+                    if (tokenInfo) {
+                        if (tokenInfo.status === 200)
+                            updToken(localToken);
                     }
-                )
-                if (tokenInfo) {
-                    if (tokenInfo.status === 200)
-                        updToken(localToken);
-                    else {
-                        updToken('');
-                        localStorage.removeItem('excel_handler_token');
-                        window.location.replace('/auth')
-                    }
+                } catch (e) {
+                    updToken('');
+                    localStorage.removeItem('excel_handler_token');
+                    window.location.replace('/auth')
                 }
+
             }
             fetchObj();
         }
@@ -39,7 +42,7 @@ export default function MainPage({ router }) {
                 <div>
                     <QuitButton />
                     <FileUpload handlerStatus={handlerStatus} updateHandlerStatus={updateHandlerStatus} router={router} token={token} />
-                    <ExcelEditor handlerStatus={handlerStatus} router={router} token={token} />
+                    <ExcelEditor handlerStatus={handlerStatus}  updateHandlerStatus={updateHandlerStatus} router={router} token={token} />
                 </div>}
         </div>
     );

@@ -4,7 +4,7 @@ import * as XLSX from 'xlsx';
 import './excelEditor.css';
 
 
-export default function ExcelEditor({ router, token, handlerStatus }) {
+export default function ExcelEditor({ router, token, handlerStatus, updateHandlerStatus }) {
     const [excelData, setExcelData] = useState(null);
     const [tableName, updateTableName] = useState('');
     const [tableNames, updateTableNames] = useState([]);
@@ -16,6 +16,35 @@ export default function ExcelEditor({ router, token, handlerStatus }) {
     useEffect(() => {
         getTablenames();
     }, [])
+    
+    async function getHadlerStatus() {
+        try {
+            const answer = await router.sendGet(
+                'files/get-hadler-status',
+                '',
+                {
+                    'AuthorizationToken': `${token}`
+                }
+            );
+            if (answer.data?.status) {
+                return answer.data.status;
+            }
+        } catch (e) {
+            //updErrMessage(e.response.data.err)
+        }
+    }
+    
+    const checkStatus = () => {
+        const interval = setInterval(async () => {
+            const status = await getHadlerStatus();
+            if (status?.process)
+                updateHandlerStatus(status);
+            else {
+                updateHandlerStatus(status);
+                clearInterval(interval);
+            }
+        }, 1500)
+    }
 
     async function getTablenames() {
         try {
@@ -145,6 +174,7 @@ export default function ExcelEditor({ router, token, handlerStatus }) {
 
     async function addToMainTable(name) {
         try {
+            checkStatus();
             const answer = await router.sendPost('files/add-to-main-table',
                 {
                     tableName: name

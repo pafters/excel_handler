@@ -17,11 +17,14 @@ class UserManager {
     }
 
     checkToken = (token) => {
-        const payload = this.decodeToken(token);
+        try {
+            const payload = this.decodeToken(token);
 
-        if (payload.login == process.env.USER_LOGIN)
-            return { status: 200 };
-        else return { msg: { err: 'Ошибка авторизации. Сессия прервана' }, status: 400 };
+            if (payload.login == process.env.USER_LOGIN)
+                return { status: 200 };
+        } catch(e) {
+            return { msg: { err: 'Ошибка авторизации. Сессия прервана' }, status: 400 };
+        }
     }
 
     auth = (login, password) => {

@@ -14,7 +14,7 @@ class FileManager {
             'гр', 'грамм', 'кг', 'килограмм', 'т', 'тонн',
             'р', 'рубль', 'доллар', 'евро'
         ];
-        this.similarityThreshold = 0.98;
+        this.similarityThreshold = 0.99;
         this.folder = 'data/';
         this.folderMain = 'data/main';
         this.status = {};

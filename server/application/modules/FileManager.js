@@ -38,7 +38,7 @@ class FileManager {
 
     deleteTable = async (tableName, main) => {
         try {
-            fs.unlinkSync(`${main ? this.filePathMain : this.filePath}\\${tableName}`)
+            fs.unlinkSync(`${main ? this.filePathMain : this.filePath}/${tableName}`)
             return { msg: {}, status: 200 };
         } catch (e) {
             console.log(e);
@@ -102,7 +102,7 @@ class FileManager {
 
     convertExcelToJsonByFilePath = (tableName, main) => {
         try {
-            const workbook = XLSX.readFile(`${`${main}` !== 'false' ? this.filePathMain : this.filePath}\\${tableName}`);
+            const workbook = XLSX.readFile(`${`${main}` !== 'false' ? this.filePathMain : this.filePath}/${tableName}`);
             const sheetName = workbook.SheetNames[0]; // Получаем имя первого листа
             const worksheet = workbook.Sheets[sheetName];
             const tableData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
@@ -152,6 +152,7 @@ class FileManager {
                 tableName
             }
         });
+        this.status = {};
         if (tableInfo) {
             return { msg: { tableInfo }, status: 200 }
         } else
@@ -160,7 +161,7 @@ class FileManager {
 
     getFile = async (filename, main) => {
         try {
-            const file = fs.readFileSync(`${main ? this.filePathMain : this.filePath}\\${filename}`);
+            const file = fs.readFileSync(`${main ? this.filePathMain : this.filePath}/${filename}`);
             return { msg: { file }, status: 200 }
         } catch (e) {
             console.log(e);
@@ -170,25 +171,27 @@ class FileManager {
     }
 
     switchMainTable = async (foreignTable, mainTable) => {
-        const sourcePath = this.filePath + '\\' + foreignTable;
+        const sourcePath = this.filePath + '/' + foreignTable;
         const destinationPath = this.filePathMain;
         try {
             if (fs.existsSync(sourcePath) && fs.existsSync(destinationPath)) {
                 // Получаем имя файла из исходного пути
                 if (mainTable) {
-                    const mainSourcePath = this.filePathMain + '\\' + mainTable;
+                    const mainSourcePath = this.filePathMain + '/' + mainTable;
                     if (fs.existsSync(mainSourcePath) && fs.existsSync(this.filePath)) {
-                        fs.copyFileSync(mainSourcePath, this.filePath + '\\' + mainTable);
+                        fs.copyFileSync(mainSourcePath, this.filePath + '/' + mainTable);
                         fs.unlinkSync(mainSourcePath);
                     }
                 }
                 // Копируем файл в папку назначения
-                fs.copyFileSync(sourcePath, destinationPath + '\\' + foreignTable);
+                fs.copyFileSync(sourcePath, destinationPath + '/' + foreignTable);
                 // Удаляем исходный файл
                 fs.unlinkSync(sourcePath);
+                this.status = {};
                 return { msg: {}, status: 200 }
             }
         } catch (e) {
+            this.status = {};
             return { msg: { err: 'Ошибка перемещения таблицы' }, status: 500 }
         }
     }

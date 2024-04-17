@@ -5,7 +5,7 @@ class BaseRouter {
     async sendRequestToServerB(req, res) {
         try {
             // Определяем базовый URL сервера "A"
-            const serverBUrl = 'http://localhost:5000';
+            const serverBUrl = 'http://212.193.51.97:5000';
             // Перенаправляем запрос целиком на сервер "A"
             const response = await axios({
                 method: req.method,
@@ -22,13 +22,13 @@ class BaseRouter {
     }
 
     sendPost(method, body, headers, params = '') {
-        const answer = axios.post(`http://localhost:5000/api/${method}${params}`, body, { headers: headers })
+        const answer = axios.post(`http://212.193.51.97:5000/api/${method}${params}`, body, { headers: headers })
         if (answer)
             return answer
     }
 
     sendGet(method, params = '', headers) {
-        const answer = axios.get(`http://localhost:5000/api/${method}${params}`, {
+        const answer = axios.get(`http://212.193.51.97:5000/api/${method}${params}`, {
             headers: headers
         })
         if (answer)

@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  server:
+    command: sh -c 'npm install && node index.js'
+    container_name: "${SERVER_NAME}"
+    image: node:20-alpine
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    volumes:
+      - ./:/app:rw
+    working_dir: /app
