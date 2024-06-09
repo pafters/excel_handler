@@ -1,12 +1,10 @@
 const XLSX = require('xlsx');
 const Excel = require('exceljs');
-const stringSimilarity = require('string-similarity');
 const fs = require('fs');
 const path = require('path');
 class FileManager {
 
     constructor() {
-        this.time = Date.now();
         this.units = [
             'мм', 'милиметр', 'см', 'сантиметр', 'м', 'метр', 'км', 'километр', 'д', 'дюйм', 'дюймов', 'дюйма', '"',
             'мл', 'милилитр', 'л', 'литр', 'литров', 'литра', 'барель',
@@ -21,8 +19,20 @@ class FileManager {
         this.folderMain = 'data/main'
         this.filePath = path.join(__dirname, '../../data');
         this.filePathMain = path.join(__dirname, '../../data/main')
-        this.tableName = null;
         this.status = {};
+    }
+
+    saveCash = async (cash, name) => {
+        try {
+            const jsonString = JSON.stringify(cash);
+
+            const file = fs.writeFileSync(`cash/${name}.json`, jsonString)
+            console.log(`Объект успешно сохранен в файл ${name}.json`);
+            return true;
+        } catch (e) {
+            console.error(e);
+            return false;
+        }
     }
 
     getTablenames = async (main) => {
@@ -115,7 +125,7 @@ class FileManager {
         }
     }
 
-    fileUpload = (groups, isDetailed, uploadedFile, MainTableStatus, isAddToMain) => {
+    fileUpload = async (groups, uploadedFile, MainTableStatus, isAddToMain) => {
         const newWorkbook = new Excel.Workbook();
         const worksheet = newWorkbook.addWorksheet('Products');
         let rowIndex = 1; // начальный индекс строки
@@ -143,18 +153,17 @@ class FileManager {
             rowIndex++; // добавляем пустую строку между разделами
         });
 
-        let tableName = isAddToMain ? uploadedFile : `${uploadedFile?.originalname?.replace(/\./g, '')}${isDetailed == 'true' ? '[DEEP]' : '[STANDARD]'}-${Date.now()}.xlsx`;
-        const path2 = `${!MainTableStatus ? (this.folderMain + '/' + tableName) : (this.folder + '/' + tableName)}`
+        let tableName = isAddToMain ? uploadedFile : `${uploadedFile?.originalname?.replace(/\./g, '')}-${Date.now()}`;
+        const path2 = `${!MainTableStatus ? (this.folderMain + '/' + tableName + '.xlsx') : (this.folder + '/' + tableName + '.xlsx')}`
 
         const tableInfo = newWorkbook.xlsx.writeFile(path2).then(() => {
             return {
                 folder: MainTableStatus ? this.folderMain : this.folder,
-                tableName
+                tableName: tableName + '.xlsx'
             }
         });
-        this.status = {};
         if (tableInfo) {
-            return { msg: { tableInfo }, status: 200 }
+            return { msg: { tableInfo, tableName }, status: 200 }
         } else
             return { msg: { err: 'Ошибка обработки таблицы' }, status: 500 }
     }
@@ -187,11 +196,9 @@ class FileManager {
                 fs.copyFileSync(sourcePath, destinationPath + '/' + foreignTable);
                 // Удаляем исходный файл
                 fs.unlinkSync(sourcePath);
-                this.status = {};
                 return { msg: {}, status: 200 }
             }
         } catch (e) {
-            this.status = {};
             return { msg: { err: 'Ошибка перемещения таблицы' }, status: 500 }
         }
     }

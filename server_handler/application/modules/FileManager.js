@@ -2,6 +2,7 @@ const XLSX = require('xlsx');
 const Excel = require('exceljs');
 const stringSimilarity = require('string-similarity');
 const { sendPost } = require('./router');
+const fs = require('fs');
 
 class FileManager {
 
@@ -58,56 +59,84 @@ class FileManager {
         }
     }
 
-    async updateStatus(process) {
-        try {
-            const answer = await sendPost(
-                'files/update-status',
-                {
-                    process: process
-                },
-                {}
-            );
-            return answer;
-        } catch (e) {
-            console.log(e);
-        }
+    removeIdentical = (products) => {
+        const uniqueProductsArray = [];
+        const lite_products = {};
+        const uniqueProducts = {};
+        const duplicates = [];
+        const cashProducts = [];
+        // Таблица соответствия латинских и кириллических букв
+        // Таблица соответствия латинских и кириллических букв
+        const alphabetMap = {
+            "a": "а",
+            "o": "о",
+            "e": "е",
+            "c": "с",
+            "p": "р",
+        };
 
-    }
+        for (let i = 0; i < products.length; i++) {
+            if (products[i]?.product_name) {
+                let product = products[i].product_name;
 
-    removeDuplicates = async (products, mainArray, isDetailed) => {
-        let uniqueProducts = Array.from(new Set(products.map((product, i) => {
-            return product.product_name;
-        })));
-        let filteredProducts = mainArray[0] ? mainArray : [];
-        for (let i = 0; i < uniqueProducts.length; i++) {
-            if (Date.now() - this.time > 10000) {
-                this.time = Date.now();
-                const answer = await this.updateStatus(`[Этап 1: ${i}/${uniqueProducts.length}]`);
-            }
-            const product = uniqueProducts[i];
-            const product_clean = mainArray[0] ? this.removeFileName(product) : null; //очищенный от файлов
-            const isSimilar = isDetailed ? filteredProducts.some(prev => {
+                // Преобразуем строку в нижний регистр
+                let canonicalProduct = product.toLowerCase();
 
-                const prev_clean = mainArray[0] ? this.removeFileName(prev) : null; //подчищенный от файлов
-                const similarity = stringSimilarity.
-                    compareTwoStrings(product_clean ? product_clean : product,
-                        prev_clean ? prev_clean : prev);
+                // Заменяем латинские буквы на кириллические и наоборот
+                for (let letter in alphabetMap) {
+                    canonicalProduct = canonicalProduct.replace(new RegExp(letter, "g"), alphabetMap[letter]);
+                }
 
-                return similarity >= this.similarityThreshold;
-            }) : false;
-            if (!isSimilar) {
-                const wordsArray = this.getWordsArray(product_clean ? product_clean : product); // Получаем массив слов для текущего продукта
-                if (!filteredProducts.some(prev => {
-                    const prev_clean = mainArray[0] ? this.removeFileName(prev) : null; //подчищенный от файлов
-                    const itemWordsArray = this.getWordsArray(prev_clean ? prev_clean : prev); // Получаем массив слов для предыдущего продукта
-                    return wordsArray.every(word => itemWordsArray.includes(word)); // Проверяем, содержатся ли все слова из wordsArray в itemWordsArray
-                })) {
-                    filteredProducts.push(product); // Добавляем продукт в filteredProducts, если он уникален
+                // Удаляем лишние пробелы и другие символы
+                const trimmedProduct = canonicalProduct.replace(/[^a-zA-Zа-яА-Я0-9ёЁ]/g, "").trim();
+
+                // Удаляем подстроки, заключенные в круглые скобки с расширением ".xlsx"
+                const trimmedProductWithoutBrackets = trimmedProduct.replace(/([^)]+.xlsx)/g, "").trim();
+
+                // Разделяем слова в строке по пробелу и сортируем их в алфавитном порядке
+                const sortedWords = trimmedProductWithoutBrackets.split(" ").sort().join(" ").trim();
+
+                // Проверим находится ли уже строка в массиве уникальных записей.
+                if (!uniqueProducts.hasOwnProperty(sortedWords)) {
+                    // Если нет, добавим продукт в объект и в новый массив uniqueProductsArray.
+                    uniqueProducts[sortedWords] = i;
+                    uniqueProductsArray.push(product);
+                    cashProducts.push(sortedWords);
+                    continue;
+                } else {
+                    // Если да, добавим в массив дубликатов информацию о дублирующейся записи.
+                    duplicates.push({
+                        original: product,
+                        duplicate: products[uniqueProducts[sortedWords]].product_name,
+                    });
                 }
             }
         }
+        return { cashProducts, uniqueProductsArray, duplicates };
 
-        return filteredProducts;
+    }
+
+    removeDuplicates = async (products) => {
+        let { cashProducts, uniqueProductsArray, duplicates } = this.removeIdentical(products);
+        console.log('1этап', products.length, uniqueProductsArray.length)
+        console.log('Удалено записей 1 этап', products.length - uniqueProductsArray.length)
+        // Получаем массив дубликатов из результата функции
+
+        // Формируем строку для записи в файл
+        let logText = 'Дубликаты:\n';
+        duplicates.forEach((duplicate) => {
+            logText += `Оригинал: ${duplicate.original} \nДубликат: ${duplicate.duplicate} \n\n`;
+        });
+
+        // Записываем строку в файл
+        fs.writeFile('log.txt', logText, (err) => {
+            if (err) {
+                console.error(err);
+            } else {
+                console.log('Дубликаты успешно записаны в log.txt');
+            }
+        });
+        return { cashProducts, uniqueProductsArray };
     }
 
 
@@ -158,13 +187,9 @@ class FileManager {
             } else {
                 sections[sectionName][prefix.trim()] = [str];
             }
-            if (Date.now() - this.time > 5000) {
-                this.time = Date.now();
-                const answer = await this.updateStatus(`[Этап 2: ${i}/${strings.length}]`);
-            }
         });
 
-        console.log('Время конца: ', new Date().toLocaleTimeString());
+        console.log('Время конца распределения по группам: ', new Date().toLocaleTimeString());
         return sections;
     }
 
@@ -219,21 +244,12 @@ class FileManager {
 
     }
 
-    fileUpload = async (data, isDetailed) => {
-        // Чтение данных из Excel файла
-        // const workbook = XLSX.read(uploadedFile.buffer, { type: 'buffer' });
-        // const sheetName = workbook.SheetNames[0];
-        // const sheet = workbook.Sheets[sheetName];
-        // const data = XLSX.utils.sheet_to_json(sheet);
-
-        let mainArray = [];
-
-        console.log('Время начала: ', new Date().toLocaleTimeString())
-        mainArray = await this.removeDuplicates(data, mainArray, isDetailed);
-        const groups = await this.getGroups(mainArray);
+    fileUpload = async (data) => {
+        let { cashProducts, uniqueProductsArray } = await this.removeDuplicates(data);
+        const groups = this.getGroups(uniqueProductsArray);
 
         if (groups)
-            return { msg: { groups }, status: 200 };
+            return { msg: { groups, cash: { products_name: uniqueProductsArray, clean: cashProducts } }, status: 200 };
         else return { msg: { err: 'Ошибка обработки' }, status: 500 };
     }
 

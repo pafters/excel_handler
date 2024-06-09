@@ -29,6 +29,7 @@ class UserManager {
 
     auth = (login, password) => {
         const { USER_PASSWORD, USER_LOGIN } = process.env;
+        console.log(USER_PASSWORD, USER_LOGIN )
         if (login === USER_LOGIN) {
             if (password == USER_PASSWORD) {
                 const token = this.createToken(login);

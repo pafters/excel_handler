@@ -16,7 +16,7 @@ export default function ExcelEditor({ router, token, handlerStatus, updateHandle
     useEffect(() => {
         getTablenames();
     }, [])
-    
+
     async function getHadlerStatus() {
         try {
             const answer = await router.sendGet(
@@ -33,7 +33,7 @@ export default function ExcelEditor({ router, token, handlerStatus, updateHandle
             //updErrMessage(e.response.data.err)
         }
     }
-    
+
     const checkStatus = () => {
         const interval = setInterval(async () => {
             const status = await getHadlerStatus();
@@ -233,24 +233,32 @@ export default function ExcelEditor({ router, token, handlerStatus, updateHandle
                                 name && name !== 'main' && < div >
                                     <button className={name === tableNames[0] ? 'main-table-name-bttn' : 'table-name-bttn'}
                                         key={'table-name-' + i} onClick={() => handleGetTableData(name)}>{name}</button>
-                                    <button className='download-table-bttn' key={'download-table-' + i} onClick={() => {
-                                        downloadTable(name);
-                                    }}>▼</button>
+                                    <button className='download-table-bttn' key={'download-table-' + i}
+                                        title="Скачать"
+                                        onClick={() => {
+                                            downloadTable(name);
+                                        }}>▼</button>
                                     {
                                         name !== tableNames[0] && !handlerStatus?.process &&
-                                        <button className='add-to-main-table-bttn' key={'add-to-main-table-' + i} onClick={() => {
-                                            addToMainTable(name);
-                                        }}>✚</button>
+                                        <button className='add-to-main-table-bttn' key={'add-to-main-table-' + i}
+                                            title="Добавить содержимое в главную"
+                                            onClick={() => {
+                                                addToMainTable(name);
+                                            }}>✚</button>
                                     }
                                     {
                                         name !== tableNames[0] &&
-                                        <button className='switch-main-table-bttn' key={'switch-main-table-' + i} onClick={() => {
-                                            switchMainTable(name);
-                                        }}>∎</button>
+                                        <button className='switch-main-table-bttn' key={'switch-main-table-' + i}
+                                            title="Сделать главной"
+                                            onClick={() => {
+                                                switchMainTable(name);
+                                            }}>∎</button>
                                     }
-                                    <button className='delete-table-bttn' key={'delete-table-' + i} onClick={() => {
-                                        showDelConfirm(name);
-                                    }}>✖</button>
+                                    <button className='delete-table-bttn' key={'delete-table-' + i}
+                                        title="Удалить"
+                                        onClick={() => {
+                                            showDelConfirm(name);
+                                        }}>✖</button>
                                 </div>
                             )
                         })}

@@ -7,11 +7,10 @@ class FileController {
             return res.status(400).send('No files were uploaded.');
         }
         const uploadedFile = req.file;
-        const isDetailed = req.body.isDetailed;
         const tableDataInfo = FileManager.convertExcelToJson(uploadedFile);
         if (tableDataInfo.msg) {
             const tableDataObj = FileManager.getProductNames(tableDataInfo.msg.tableData, null);
-            const data = await FileManager.fileUpload(tableDataObj, isDetailed);
+            const data = await FileManager.fileUpload(tableDataObj);
             if (data) {
                 res.status(data.status).send(data.msg);
             } else res.status(500).send({ err: 'Что то пошло не так' });

@@ -24,10 +24,8 @@ class FileController {
             const tableNamesInfo = await FileManager.getTablenames(true);
             const MainTableStatus = tableNamesInfo.msg.files[0] ? true : false;
             const uploadedFile = req.file;
-            const isDetailed = req.body.isDetailed;
             const formData = new FormData();
             formData.append('file', uploadedFile.buffer, { filename: uploadedFile.originalname });
-            formData.append('isDetailed', isDetailed);
             try {
                 FileManager.tableName = uploadedFile.originalname;
                 const answer = await sendPost('files/upload-file', formData,
@@ -38,7 +36,8 @@ class FileController {
                 if (answer.data) {
                     const groups = answer.data.groups;
 
-                    const file = await FileManager.fileUpload(groups, isDetailed, uploadedFile, MainTableStatus, false);
+                    const file = await FileManager.fileUpload(groups, uploadedFile, MainTableStatus, false);
+                    
                     FileManager.status = {};
                     FileManager.tableName = null;
                     res.status(file.status).send(file.msg);
